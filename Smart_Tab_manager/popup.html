@@ -5,9 +5,15 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h2>Smart Tab Manager</h2>
-  <button id="categorize">Categorize Tabs</button>
-  <ul id="tab-list"></ul>
+  <div class="container">
+    <h2>Smart Tab Manager</h2>
+    <div class="actions">
+      <button id="categorize" class="primary-btn">Categorize Tabs</button>
+      <button id="closeInactive" class="secondary-btn">Close Inactive Tabs</button>
+    </div>
+    <div id="stats" class="stats"></div>
+    <div id="tab-list" class="tab-list"></div>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>

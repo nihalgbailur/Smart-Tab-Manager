@@ -1,22 +1,36 @@
 // Log installation event
 chrome.runtime.onInstalled.addListener(() => {
   console.log("Smart Tab Manager installed!");
+  // Initialize storage
+  chrome.storage.local.set({ tabUsage: {} });
 });
 
 // Track tab activity
-chrome.tabs.onActivated.addListener(({ tabId }) => {
-  const now = Date.now();
-
-  chrome.storage.local.get("tabUsage", (data) => {
+chrome.tabs.onActivated.addListener(async ({ tabId }) => {
+  try {
+    const now = Date.now();
+    const data = await chrome.storage.local.get("tabUsage");
     const tabUsage = data.tabUsage || {};
-    tabUsage[tabId] = now; // Update the timestamp for the active tab
+    
+    tabUsage[tabId] = now;
+    
+    await chrome.storage.local.set({ tabUsage });
+    console.log(`Updated tabUsage: Tab ${tabId} at ${new Date(now)}`);
+  } catch (error) {
+    console.error("Error tracking tab activity:", error);
+  }
+});
 
-    chrome.storage.local.set({ tabUsage }, () => {
-      if (chrome.runtime.lastError) {
-        console.error("Error storing tab usage:", chrome.runtime.lastError);
-      } else {
-        console.log(`Updated tabUsage: Tab ${tabId} at ${new Date(now)}`);
-      }
-    });
-  });
+// Clean up removed tabs
+chrome.tabs.onRemoved.addListener(async (tabId) => {
+  try {
+    const data = await chrome.storage.local.get("tabUsage");
+    const tabUsage = data.tabUsage || {};
+    
+    delete tabUsage[tabId];
+    
+    await chrome.storage.local.set({ tabUsage });
+  } catch (error) {
+    console.error("Error cleaning up tab data:", error);
+  }
 });
